@@ -11,70 +11,84 @@
         </div>
         <div class="game-info">
             <h2>Round: <span data-round="0">0</span></h2>
-            <button data-action="start" v-on:click="startGame('high')">Start</button>
+            <button data-action="start" v-on:click="startGame">Start</button>
             <p data-action="lose">Sorry, you lost after <span data-round="0"></span> rounds!</p>
         </div>
         <div class="game-options">
             <h2>Game Options:</h2>
-            <input type="radio" name="mode" value="normal" checked="">Normal<br>
-            <input type="radio" name="mode" value="sound-only">Sound Only<br>
-            <input type="radio" name="mode" value="light-only">Light Only<br>
-            <input type="radio" name="mode" value="free-board">Free board
+            <label>
+                <input type="radio" name="mode" value="normal" checked="">
+            </label>Normal<br>
+            <label>
+                <input type="radio" name="mode" value="sound-only">
+            </label>Sound Only<br>
+            <label>
+                <input type="radio" name="mode" value="light-only">
+            </label>Light Only<br>
+            <label>
+                <input type="radio" name="mode" value="free-board">
+            </label>Free board
         </div>
     </div>
 
-<!--    <div data-action="sound">-->
-<!--        <audio autoplay>-->
-<!--            <source src="./assets/sounds/1.ogg" type="audio/ogg">-->
-<!--            <source src="./assets/sounds/1.mp3" type="audio/mp3">-->
-<!--        </audio>-->
-<!--    </div>-->
+    <!--    <div data-action="sound">-->
+    <!--        <audio autoplay>-->
+    <!--            <source src="./assets/sounds/1.ogg" type="audio/ogg">-->
+    <!--            <source src="./assets/sounds/1.mp3" type="audio/mp3">-->
+    <!--        </audio>-->
+    <!--    </div>-->
 </template>
 
 
 <script>
-    let simonGames = new Vue({
+    export default {
         name: 'App',
-        // mounted() {
-        //     // function activeSimonItem(){
-        //     //     let allSimonItemsElem = document.querySelectorAll('.simon__item')
-        //     //
-        //     //     allSimonItemsElem.forEach(element=>{
-        //     //         element.addEventListener('mouseup', ()=> element.classList.toggle('active'))
-        //     //     })
-        //     //     allSimonItemsElem.forEach(element=>{
-        //     //         element.addEventListener('mousedown', ()=> element.classList.toggle('active'))
-        //     //     })
-        //     // }
-        //     // activeSimonItem()
-        //
-        // },
-        methods:{
-            startGame: function startGame(level){
-                function getRandomInt(max){
-                    return Math.floor(Math.random() * Math.floor(max));
-                }
+        mounted() {
+            document.querySelectorAll('.simon__item').forEach(item => item.addEventListener('mousedown', () => {
+                item.classList.add('active')
+            }))
+            document.querySelectorAll('.simon__item').forEach(item => item.addEventListener('mouseup', () => {
+                item.classList.remove('active')
+            }))
 
-                function returnRandomElemForGame(level){
-                    level == 'low' ? level = 1500: ''
-                    level == 'medium' ? level = 1000: ''
-                    level == 'high' ? level = 400: ''
+        },
+        data: function () {
+            return {
+                isError: true
+            }
+        },
+        methods: {
+            startGame: function (level) {
+                this.getRandomActiveElemOrder = 0
 
+                function returnRandomElemForGame(level) {
+
+                    level === 'low' ? level = 1500 : ''
+                    level === 'medium' ? level = 1000 : ''
+                    level === 'high' ? level = 400 : ''
 
                     let allSimonItemsElem = document.querySelectorAll('.simon__item')
-                    let allSimonItemsElemLength = allSimonItemsElem.length
-                    let getRandomActiveElem = getRandomInt(allSimonItemsElemLength)
+                    let getLengthSimonItems = allSimonItemsElem.length
+                    let getRandomActiveElem = (max) => Math.floor(Math.random() * Math.floor(max));
+                    this.getRandomActiveElemOrder = getRandomActiveElem(getLengthSimonItems)
 
-                    setTimeout(()=>{
-                        document.querySelectorAll('.simon__item')[getRandomActiveElem].classList.add('active')
+                    setTimeout(() => {
+                        allSimonItemsElem[this.getRandomActiveElemOrder].classList.add('active')
                     }, 1000)
-                    setTimeout(()=>{
-                        document.querySelectorAll('.simon__item')[getRandomActiveElem].classList.remove('active')
+                    setTimeout(() => {
+                        allSimonItemsElem[this.getRandomActiveElemOrder].classList.remove('active')
                     }, 1400)
                 }
-                returnRandomElemForGame(level)
+
+                function successLevel() {
+                    document.querySelectorAll('.simon__item')[this.getRandomActiveElemOrder].addEventListener('click', () => console.log('ты кликнул правильно'))
+                }
+
+                returnRandomElemForGame.call(this, level)
+
+                successLevel.call(this)
             }
         }
-    })
+    }
 </script>
 
