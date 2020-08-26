@@ -1,6 +1,7 @@
 <template>
     <div class="container">
         <h1>Simon Says</h1>
+        {{historyClicked}}
         <div class="simon">
             <ul>
                 <li class="red simon__item" data-tile="1"></li>
@@ -10,7 +11,7 @@
             </ul>
         </div>
         <div class="game-info">
-            <h2>Round: <span data-round="0">0</span></h2>
+            <h2>Round: <span data-round="0">{{this.round}}</span></h2>
             <button data-action="start" v-on:click="startGame">Start</button>
             <p data-action="lose">Sorry, you lost after <span data-round="0"></span> rounds!</p>
         </div>
@@ -54,12 +55,15 @@
         },
         data: function () {
             return {
-                isError: true
+                round: 1,
+                historyClicked: []
             }
         },
         methods: {
             startGame: function (level) {
-                this.getRandomActiveElemOrder = 0
+
+                returnRandomElemForGame.call(this, level);
+                successLevel.call(this);
 
                 function returnRandomElemForGame(level) {
 
@@ -67,10 +71,10 @@
                     level === 'medium' ? level = 1000 : ''
                     level === 'high' ? level = 400 : ''
 
-                    let allSimonItemsElem = document.querySelectorAll('.simon__item')
-                    let getLengthSimonItems = allSimonItemsElem.length
+                    let allSimonItemsElem = document.querySelectorAll('.simon__item');
+                    let getLengthSimonItems = allSimonItemsElem.length;
                     let getRandomActiveElem = (max) => Math.floor(Math.random() * Math.floor(max));
-                    this.getRandomActiveElemOrder = getRandomActiveElem(getLengthSimonItems)
+                    this.getRandomActiveElemOrder = getRandomActiveElem(getLengthSimonItems);
 
                     setTimeout(() => {
                         allSimonItemsElem[this.getRandomActiveElemOrder].classList.add('active')
@@ -78,15 +82,44 @@
                     setTimeout(() => {
                         allSimonItemsElem[this.getRandomActiveElemOrder].classList.remove('active')
                     }, 1400)
+
                 }
 
                 function successLevel() {
-                    document.querySelectorAll('.simon__item')[this.getRandomActiveElemOrder].addEventListener('click', () => console.log('ты кликнул правильно'))
+                    // Обработка события при правильном нажатии
+                    if (this.getRandomActiveElemOrder === this.getRandomActiveElemOrder) {
+                        let clickedRandomActiveElemOrder=()=>{
+                            this.historyClicked.push(this.getRandomActiveElemOrder)
+
+                            let count = 0;
+
+                            let intervalId = setInterval(()=>{
+                                count++;
+                                if(count == this.round){
+                                    clearInterval(intervalId);
+                                }
+                                this.startGame();
+                            }, 1000);
+
+                            document.querySelectorAll('.simon__item')[this.getRandomActiveElemOrder].removeEventListener('click', clickedRandomActiveElemOrder)
+                        }
+
+
+
+                        document.querySelectorAll('.simon__item')[this.getRandomActiveElemOrder].addEventListener('click', clickedRandomActiveElemOrder)
+                    }
+                    let clickedAllElem=(simonItem, index) =>{
+                        if (index !== this.getRandomActiveElemOrder) {
+                            simonItem.addEventListener('click', () => {
+                                console.log('ты кликнул неправильно')
+                            })
+                        }
+                    }
+                    // Обработка события при НЕ правильном нажатии
+                    document.querySelectorAll('.simon__item').forEach( (simonItem, index)=>  clickedAllElem (simonItem, index))
+                    document.querySelectorAll('.simon__item').forEach( (simonItem, index)=>  simonItem.removeEventListener('click', (simonItem, index) => clickedAllElem(simonItem, index)))
+
                 }
-
-                returnRandomElemForGame.call(this, level)
-
-                successLevel.call(this)
             }
         }
     }
